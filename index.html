@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#163e68"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Learning Lab"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/svg+xml" href="icon.svg"><title>Learning Lab</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#19314d;background:#f3f7ff}*{box-sizing:border-box}
+body{margin:0;min-height:100vh}header{background:#163e68;color:white;padding:18px max(18px,env(safe-area-inset-left));display:flex;justify-content:space-between;gap:16px;align-items:center}h1{font-size:clamp(1.2rem,4vw,1.8rem);margin:0}h2{margin:0 0 12px}main{max-width:860px;margin:24px auto;padding:0 16px 45px}.card{background:white;border-radius:20px;padding:22px;margin-bottom:18px;box-shadow:0 4px 18px #19314d13}.muted{color:#4a5e78}.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}button,select{min-height:48px;border:2px solid #b6c9e3;border-radius:13px;background:white;color:#19314d;padding:9px 16px;font:inherit;font-weight:650;cursor:pointer}button:focus-visible,select:focus-visible{outline:3px solid #e69a13;outline-offset:2px}button.primary{background:#1765a9;border-color:#1765a9;color:white}button:disabled{opacity:.55;cursor:not-allowed}.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0}.choices button{font-size:1.35rem;min-height:70px}.choices button.selected{background:#dcecff;border-color:#1765a9}.pill{padding:5px 10px;border-radius:999px;background:#e4f0fd;font-size:.86rem;font-weight:700}.question{font-size:clamp(1.35rem,4.8vw,2rem);line-height:1.55;margin:15px 0;white-space:pre-wrap}.feedback{font-size:1.1rem;min-height:1.6em;font-weight:650}.success{color:#156a3a}.error{color:#a13c22}.hidden{display:none!important}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#f0f6ff;border-radius:12px;padding:13px;text-align:center}.stat strong{display:block;font-size:1.5rem}.settings{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.hint{padding:12px;border-left:4px solid #e5a32b;background:#fff8e8;border-radius:8px}.small{font-size:.86rem}footer{text-align:center;color:#61728b;font-size:.86rem}mark{background:#ffe4a5;border-radius:3px}@media(max-width:480px){.stats{grid-template-columns:1fr 1fr}.card{padding:16px}.choices{gap:8px}}
+.wallet-track{height:12px;border-radius:999px;background:#e4eaf4;overflow:hidden;margin:15px 0}.wallet-fill{height:100%;width:0;background:#1765a9}.wallet-entry{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e4eaf4}.wallet-entry button{min-height:40px}.boxgap{margin:14px 0}input{border:2px solid #b6c9e3;border-radius:12px;min-height:44px;padding:8px 10px;font:inherit;max-width:155px}h3{margin:20px 0 8px}@media(max-width:480px){.wallet-entry{align-items:start}input{max-width:145px}}
+.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:16px 0}
+.settings-grid label{display:flex;flex-direction:column;gap:6px;font-size:.9rem;font-weight:600}
+.settings-grid input,.settings-grid select{max-width:none;width:100%;min-height:44px}
+@media(max-width:600px){.settings-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><h1>🌟 Learning Lab</h1><span class="pill">Learn at your pace</span></header>
+<main>
+<section class="card" aria-label="Daily progress"><h2>Today's adventure</h2><p id="studentGreeting" class="muted small"></p><p class="muted">Explore maths, reading and more at your own pace.</p><div class="stats"><div class="stat"><strong id="mathScore">0</strong>Maths correct</div><div class="stat"><strong id="readingScore">0</strong>Reading correct</div><div class="stat"><strong id="streak">0</strong>Current streak</div></div></section>
+<section class="card"><h2>Choose your challenge</h2><div class="controls"><button id="mathTab" class="primary" type="button">🔢 Maths</button><button id="readingTab" type="button">📖 Reading</button><button id="assessmentTab" type="button">🎯 Maths check</button><button id="scienceTab" type="button">🔬 Science</button><button id="logicTab" type="button">🧩 Logic</button><button id="knowledgeTab" type="button">🌍 General Knowledge</button><button id="codingTab" type="button">💻 Coding Basics</button></div><p class="muted small" id="levelInfo"></p></section>
+<section class="card">
+<div class="settings"><label for="audioMode">Reading help</label><select id="audioMode"><option value="help">Try first, then listen</option><option value="alone">Read by myself</option><option value="listen">Listen and follow</option></select><button id="speakBtn" type="button">🔊 Read question</button><button id="stopBtn" type="button">■ Stop</button></div>
+<p id="context" class="muted"></p><div id="question" class="question" aria-live="polite"></div><div id="choices" class="choices" role="group" aria-label="Answer choices"></div>
+<p id="feedback" class="feedback" role="status" aria-live="polite"></p><div class="controls"><button id="hintBtn" type="button">💡 Give me a hint</button><button id="nextBtn" class="primary" type="button" disabled>Next question →</button></div><p id="hint" class="hint hidden"></p>
+</section>
+<section class="card" id="rewardsCard">
+<h2>💷 My Learning Rewards</h2>
+<p class="muted">Your reward balance grows automatically when you finish learning challenges. No PIN or approval needed.</p>
+<div class="stats">
+<div class="stat"><strong id="walletEarned">0.00</strong>Earned this month</div>
+<div class="stat"><strong id="walletRemaining">0.00</strong>Still available this month</div>
+<div class="stat"><strong id="walletMonth">—</strong>Reward month</div>
+</div>
+<div class="boxgap"><div class="wallet-track"><div class="wallet-fill" id="walletFill"></div></div>
+<p id="rewardRulesText" class="muted small">Virtual rewards are configured in Parent Settings. Only correct answers within two attempts qualify; further attempts are practice only.</p>
+<div class="stats">
+<div class="stat"><strong id="walletSave">£0.00</strong>Saving (60%)</div>
+<div class="stat"><strong id="walletSpend">£0.00</strong>Spending (40%)</div>
+</div></div>
+<h3>My reward progress</h3><div id="walletEntries" aria-live="polite"></div>
+<p class="muted small" id="walletNotice"></p>
+</section>
+<section class="card"><h2>Parent settings</h2>
+<p class="muted small">Personalise this device. There is no account or password; settings are accessible to anyone using this browser. Age does not automatically determine ability. Rewards are virtual, not real payments.</p>
+<div class="settings-grid">
+<label>Student nickname (optional)<input id="settingNickname" maxlength="32" placeholder="Learner"></label>
+<label>Age (5–16)<input id="settingAge" type="number" min="5" max="16"></label>
+<label>School year / stage (optional)<input id="settingSchoolYear" maxlength="28" placeholder="e.g. P3, Year 4"></label>
+<label>Maths mode<select id="settingMathMode"><option value="auto">Adaptive</option><option value="fixed">Fixed level</option></select></label>
+<label>Maths starting/fixed level<select id="settingMathLevel"><option value="1">1 · Addition</option><option value="2">2 · Subtraction</option><option value="3">3 · Multiplication</option><option value="4">4 · Division</option><option value="5">5 · Fractions</option><option value="6">6 · Decimals</option><option value="7">7 · Percentages</option><option value="8">8 · Reasoning</option></select></label>
+<label>Reading practice<select id="settingReadingMode"><option value="all">All questions</option><option value="foundation">Foundation topics</option><option value="advanced">More challenging topics</option></select></label>
+<label>Rewards<select id="settingRewards"><option value="on">Virtual rewards on</option><option value="off">No rewards</option></select></label>
+<label>Currency<select id="settingCurrency"><option value="GBP">GBP · £</option><option value="USD">USD · $</option><option value="EUR">EUR · €</option><option value="NGN">NGN · ₦</option></select></label>
+<label>Maths daily reward<input id="settingMathReward" type="number" min="0" max="1000" step="0.01"></label>
+<label>Reading daily reward<input id="settingReadingReward" type="number" min="0" max="1000" step="0.01"></label>
+<label>Weekly reward<input id="settingWeeklyReward" type="number" min="0" max="1000" step="0.01"></label>
+<label>Monthly cap<input id="settingMonthlyCap" type="number" min="0" max="1000" step="0.01"></label>
+</div>
+<div class="controls"><button id="saveSettings" type="button" class="primary">Save parent settings</button></div>
+<p id="settingsStatus" class="small muted" role="status"></p>
+</section>
+<section class="card"><h2>Learning progress</h2><p class="muted">Progress stays in this browser. This is not a formal assessment.</p><div id="parentSummary" class="boxgap"></div><button id="exportBtn" type="button">Export progress and rewards</button><p id="storageMessage" class="small muted"></p></section>
+<footer>Works without an account or API. Audio requires compatible browser speech support. Install from a trusted HTTPS website; offline use is supported after a successful first online visit and service-worker activation.</footer>
+</main>
+<script src="maths-engine.js"></script>
+<script src="reading-engine.js"></script>
+<script src="explore-engine.js"></script>
+<script src="settings.js"></script>
+<script src="wallet.js"></script>
+<script src="parent-report.js"></script>
+<script src="backup.js"></script>
+<script src="sync-engine.js"></script>
+<script src="wallet-ui.js" defer></script>
+
+<script>
+(()=>{'use strict';
+const KEY='learning-lab-v1';
+const settings=()=>LearningSettings.read();
+const $=id=>document.getElementById(id);
+const initial=()=>({mathLevel:1,mathCorrect:0,readingCorrect:0,streak:0,mathHistory:[],readingHistory:[],audioMode:'help',lastDay:''});
+let data=initial(),mode='math',current=null,answered=false,attempts=0,helpUsed=false,wordTimer=null;const exploreIndex={science:0,logic:0,knowledge:0};
+try {const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved&&typeof saved==='object')data={...initial(),...saved};}catch(e){$('storageMessage').textContent='Progress storage is unavailable or damaged; practising in this session only.';}
+data.mathLevel=LearningMaths.clamp(data.mathLevel);
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){$('storageMessage').textContent='Progress cannot be saved in this browser.';}}
+function day(){return new Date().toLocaleDateString('en-CA');}
+function renderParent(){
+ const p=LearningParentReport.summarise(data,null,day());
+ const box=$('parentSummary');box.replaceChildren();
+ const heading=document.createElement('p');heading.className='muted small';heading.textContent='Learning summary on this device • informal practice indicators';box.appendChild(heading);
+ const grid=document.createElement('div');grid.className='stats';
+ for(const [name,value] of [['Maths correct',p.mathsCorrect],['Reading correct',p.readingCorrect],['Maths level',p.mathLevel+' / 8'],['Practice days',p.activeDays]]){
+ const cell=document.createElement('div');cell.className='stat';const strong=document.createElement('strong');strong.textContent=String(value);cell.appendChild(strong);cell.appendChild(document.createTextNode(name));grid.appendChild(cell);
+ }box.appendChild(grid);
+ const details=document.createElement('p');details.className='small muted';
+ details.textContent='Maths first-try: '+p.mathsFirst+' of '+p.mathsHistory+' recorded • Reading first-try: '+p.readFirst+' of '+p.readingHistory+' recorded. Reward-eligible solved questions: Maths '+p.mathsEligible+', Reading '+p.readEligible+'.';box.appendChild(details);
+ const explore=document.createElement('p');explore.className='small muted';explore.textContent=p.explore.map(x=>x.label+': '+x.correct+' correct').join(' • ');box.appendChild(explore);
+ const note=document.createElement('p');note.className='small muted';note.textContent='Reward balances are shown in My Learning Rewards above. This dashboard is not a grade, diagnosis or secure payment ledger.';box.appendChild(note);
+}
+function update(){renderParent();const cfg=settings();$('studentGreeting').textContent=cfg.nickname?'Learning with '+cfg.nickname:''; $('mathScore').textContent=data.mathCorrect;$('readingScore').textContent=data.readingCorrect;$('streak').textContent=data.streak;$('levelInfo').textContent='Maths challenge level: '+data.mathLevel+' of '+LearningMaths.MAX_LEVEL+' — '+LearningMaths.TOPICS[data.mathLevel-1]+'. Reading builds from short sentences to comprehension.';$('audioMode').value=data.audioMode; }
+function random(n){return Math.floor(Math.random()*n);}
+function shuffle(items){return [...items].sort(()=>Math.random()-.5);}
+function options(answer,others){const unique=[answer,...others.filter(x=>x!==answer)];let offset=1;while(unique.length<4){let v=typeof answer==='number'?answer+offset*2:'Try again '+offset;if(!unique.includes(v))unique.push(v);offset++;}return shuffle(unique.slice(0,4));}
+function maths(level){return LearningMaths.question(level);}
+let readingIndex=0;
+function reading(){const cfg=settings();const questions=LearningSettings.readingItems(cfg.readingMode,LearningReading.ITEMS);const item=questions[readingIndex++%questions.length];return {...item,options:[...item.options].sort(()=>Math.random()-.5),skill:'reading'};}
+function stopSpeech(){if('speechSynthesis'in window)window.speechSynthesis.cancel();if(wordTimer)clearInterval(wordTimer);wordTimer=null;}
+function speak(){if(!current||!('speechSynthesis'in window)){ $('feedback').textContent='Audio is unavailable in this browser.';return;}stopSpeech();const text=current.text;const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=.82;const words=text.split(/\s+/);if(data.audioMode==='listen'){let i=0;const updateHighlight=()=>{const escaped=words.map((w,j)=>j===Math.min(i,words.length-1)?'<mark>'+escapeHtml(w)+'</mark>':escapeHtml(w));$('question').innerHTML=escaped.join(' ');i++;};updateHighlight();wordTimer=setInterval(updateHighlight,Math.max(400,Math.floor((text.length/words.length)*90)));u.onend=()=>{stopHighlight();};u.onerror=()=>{stopHighlight();};}window.speechSynthesis.speak(u);}
+function stopHighlight(){if(wordTimer)clearInterval(wordTimer);wordTimer=null;if(current)$('question').textContent=current.text;}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function render(){stopSpeech();answered=false;attempts=0;helpUsed=false;current=mode==='reading'?reading():LearningExplore.TOPICS.includes(mode)?LearningExplore.question(mode,exploreIndex[mode]++):maths(mode==='assessment'?LearningMaths.clamp(data.assessmentLevel):(settings().mathMode==='fixed'?settings().mathLevel:data.mathLevel));$('question').textContent=current.text;$('context').textContent=mode==='assessment'?'Maths check • level '+current.level:mode==='reading'?'Reading detective':LearningExplore.TOPICS.includes(mode)?({science:'Science lab',logic:'Logic puzzles',knowledge:'General knowledge',coding:'Coding basics'}[mode]+' • practice only'):'Maths • level '+current.level;$('choices').replaceChildren();current.options.forEach(value=>{const btn=document.createElement('button');btn.type='button';btn.textContent=String(value);btn.addEventListener('click',()=>choose(value,btn));$('choices').appendChild(btn);});$('feedback').textContent='';$('feedback').className='feedback';$('hint').classList.add('hidden');$('nextBtn').disabled=true;$('speakBtn').disabled=data.audioMode==='alone';update();if(data.audioMode==='listen')speak();}
+function choose(value,btn){if(answered)return;attempts++;const right=value===current.answer; if(!right){$('feedback').textContent=attempts>=2?'Two tries used. Keep practising to learn the answer, but this question will not count towards money rewards.':'Not quite. You have one more try to earn reward credit for this question.';$('feedback').className='feedback error';btn.disabled=true;data.streak=0;save();update();return;}answered=true;const rewardEligible=LearningWallet.rewardEligible(attempts);const firstTry=attempts===1&&!helpUsed;data.streak++;if(LearningExplore.TOPICS.includes(mode)){data.exploreCorrect=data.exploreCorrect||{};data.exploreCorrect[mode]=(data.exploreCorrect[mode]||0)+1;}else if(mode==='reading'){data.readingCorrect++;data.readingHistory=LearningSync.addActivity(data.readingHistory,{day:day(),firstTry,rewardEligible});data.readingHistory=data.readingHistory.slice(-60);}else if(mode==='assessment'){if(firstTry)data.assessmentLevel=Math.min(LearningMaths.MAX_LEVEL,(Number(data.assessmentLevel)||1)+1);else data.assessmentLevel=Math.max(1,(Number(data.assessmentLevel)||1)-1);data.assessmentAttempts=(data.assessmentAttempts||0)+1;if(data.assessmentAttempts>=8){data.mathLevel=LearningMaths.clamp(data.assessmentLevel);data.assessmentAttempts=0;mode='math';}}else{data.mathCorrect++;data.mathHistory=LearningSync.addActivity(data.mathHistory,{day:day(),firstTry,rewardEligible,level:current.level});data.mathHistory=data.mathHistory.slice(-60);if(settings().mathMode!=='fixed')data.mathLevel=LearningMaths.progression(data.mathLevel,data.mathHistory);}data.lastDay=day();save();window.dispatchEvent(new CustomEvent('learning-lab-progress'));$('feedback').textContent=LearningExplore.TOPICS.includes(mode)?'Great exploring! This subject is for learning practice, not money rewards. ⭐':!rewardEligible?'You found the answer! Great perseverance. This question counts as learning practice, not money rewards. ⭐':firstTry?'Brilliant! You worked that out yourself. ⭐':'Well done! Correct on your second try — this counts towards rewards. ⭐';$('feedback').className='feedback success';[...$('choices').children].forEach(x=>x.disabled=true);$('nextBtn').disabled=false;update();}
+function setMode(m){mode=m;stopSpeech();$('mathTab').className=m==='math'?'primary':'';$('readingTab').className=m==='reading'?'primary':'';$('assessmentTab').className=m==='assessment'?'primary':'';for(const topic of LearningExplore.TOPICS){$(topic+'Tab').className=m===topic?'primary':'';}if(m==='assessment'){data.assessmentLevel=1;data.assessmentAttempts=0;}render();}
+$('mathTab').onclick=()=>setMode('math');$('readingTab').onclick=()=>setMode('reading');$('assessmentTab').onclick=()=>setMode('assessment');for(const topic of LearningExplore.TOPICS){$(topic+'Tab').onclick=()=>setMode(topic);}$('nextBtn').onclick=render;$('hintBtn').onclick=()=>{helpUsed=true;$('hint').textContent=current.hint;$('hint').classList.remove('hidden');};$('audioMode').onchange=e=>{data.audioMode=e.target.value;save();stopSpeech();stopHighlight();$('speakBtn').disabled=data.audioMode==='alone';if(data.audioMode==='listen')speak();};$('speakBtn').onclick=speak;$('stopBtn').onclick=()=>{stopSpeech();stopHighlight();};
+$('exportBtn').onclick=()=>{try{const payload=LearningBackup.build(localStorage.getItem(LearningBackup.LEARNING) ?? JSON.stringify(data),localStorage.getItem(LearningBackup.WALLET),new Date().toISOString());const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='learning-lab-progress.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('storageMessage').textContent='Downloaded a copy of learning and rewards. Store it privately; no automatic server backup exists.';}catch(e){$('storageMessage').textContent='Backup not created: '+e.message+'. Existing learning and rewards were not changed.';}};
+
+function loadSettingsForm(){
+ const s=settings(),fields={Nickname:s.nickname,Age:s.age,SchoolYear:s.schoolYear,MathMode:s.mathMode,MathLevel:s.mathLevel,ReadingMode:s.readingMode,Rewards:s.rewardsEnabled?'on':'off',Currency:s.currency,MathReward:(s.mathReward/100).toFixed(2),ReadingReward:(s.readingReward/100).toFixed(2),WeeklyReward:(s.weeklyReward/100).toFixed(2),MonthlyCap:(s.monthlyCap/100).toFixed(2)};
+ for(const [key,value] of Object.entries(fields))$('setting'+key).value=value;
+}
+loadSettingsForm();
+$('saveSettings').onclick=()=>{
+ const status=$('settingsStatus'),old=settings();
+ try{
+  const cents=id=>{const raw=$('setting'+id).value.trim();if(!/^\d{1,4}(\.\d{1,2})?$/.test(raw))throw Error('Enter a valid non-negative amount with up to two decimal places for '+id+'.');const n=Math.round(Number(raw)*100);if(n>100000)throw Error(id+' cannot exceed 1,000.00.');return n;};
+  const age=Number($('settingAge').value),level=Number($('settingMathLevel').value);
+  if(!Number.isInteger(age)||age<5||age>16)throw Error('Age must be from 5 to 16.');
+  const raw={nickname:$('settingNickname').value,age,schoolYear:$('settingSchoolYear').value,mathMode:$('settingMathMode').value,mathLevel:level,readingMode:$('settingReadingMode').value,rewardsEnabled:$('settingRewards').value==='on',currency:$('settingCurrency').value,mathReward:cents('MathReward'),readingReward:cents('ReadingReward'),weeklyReward:cents('WeeklyReward'),monthlyCap:cents('MonthlyCap')};
+  const stored=JSON.parse(localStorage.getItem('learning-lab-wallet-v1')||'null');
+  if(stored&&Array.isArray(stored.items)&&stored.items.length&&raw.currency!==old.currency)throw Error('Currency cannot change after rewards are recorded on this browser. Export records before using a fresh browser/profile with another currency.');
+  const next=LearningSettings.clean(raw);
+  if(next.monthlyCap>0&&Math.max(next.mathReward,next.readingReward,next.weeklyReward)>next.monthlyCap)throw Error('A single reward cannot exceed the monthly cap.');
+  if(next.mathMode==='fixed'){data.mathLevel=next.mathLevel;save();}
+  LearningSettings.save(next);status.textContent='Settings saved on this device.';
+  window.dispatchEvent(new CustomEvent('learning-lab-settings-changed'));update();render();
+ }catch(e){status.textContent='Settings not saved: '+e.message;}
+};
+window.addEventListener('pagehide',stopSpeech);render();
+if('serviceWorker' in navigator && location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
+})();
+</script></body></html>

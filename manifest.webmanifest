@@ -1,0 +1,18 @@
+{
+  "name": "Learning Lab",
+  "short_name": "Learning Lab",
+  "description": "Offline-friendly educational activities",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f7ff",
+  "theme_color": "#163e68",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

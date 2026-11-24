@@ -1,0 +1,10 @@
+const test=require('node:test'),assert=require('node:assert/strict');
+const S=require('../settings.js'),W=require('../wallet.js');
+test('public defaults',()=>{const x=S.clean();assert.equal(x.currency,'GBP');assert.equal(x.mathReward,30);assert.equal(x.monthlyCap,4000)});
+test('age and reward inputs bounded',()=>{const x=S.clean({age:900,mathReward:-4,monthlyCap:999999,currency:'BAD'});assert.equal(x.age,16);assert.equal(x.mathReward,30);assert.equal(x.monthlyCap,4000);assert.equal(x.currency,'GBP')});
+test('all currencies format correctly',()=>{for(const c of S.CURRENCIES){assert(S.money(125,S.clean({currency:c})).length>2)}});
+test('custom reward amounts are actually awarded',()=>{const s=S.clean({mathReward:250,monthlyCap:1000});const w=W.claim(W.zero(),'maths','2026-11-24',5,s);assert.equal(w.items[0].pence,250);assert.equal(W.summary(w,'2026-11-24',s).remaining,750)});
+test('custom cap enforced',()=>{const s=S.clean({mathReward:600,readingReward:500,monthlyCap:1000});let w=W.claim(W.zero(),'maths','2026-11-24',5,s);assert.throws(()=>W.claim(w,'reading','2026-11-24',2,s),/cap/i)});
+test('rewards disabled does not award',()=>{assert.throws(()=>W.claim(W.zero(),'maths','2026-11-24',5,S.clean({rewardsEnabled:false})),/disabled/i)});
+test('existing reward history stays intact',()=>{const w=W.claim(W.zero(),'maths','2026-11-24',5);const s=S.clean({mathReward:999});assert.equal(W.summary(w,'2026-11-24',s).monthEarned,30)});
+test('reading groups use actual content topics',()=>{const R=require('../reading-engine.js');for(const mode of ['all','foundation','advanced']){const x=S.readingItems(mode,R.ITEMS);assert(x.length>0);assert(x.every(q=>q.answer&&q.options.includes(q.answer)))}});
